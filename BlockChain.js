@@ -1,25 +1,47 @@
 const Block = require('./Block');
+const Transaction = require('./Transaction')
 class BlockChain{
     constructor(){
         this.chain = [this.createFirstBlock()];
         this.difficulty = 4;
+        this.pendingTransactions = [];
+        this.miningReward = 10;
     }
     createFirstBlock(){
-        let firstBlock = new Block("First Block","0000")
-        // //firstBlock.hash = firstBlock.calculateHash();
-        // firstBlock.hash = firstBlock.mineBlock(this.difficulty);
+        let firstBlock = new Block([],"0000")
         return firstBlock;
     }
     lastBlock(){
         return this.chain[this.chain.length-1];
     }
-    addNewBlock(myblock){
-        myblock.index = this.lastBlock().index+1;
-        myblock.timestamp = JSON.stringify(new Date());
-        myblock.data = JSON.stringify(myblock.data);
-        myblock.previoushash = this.lastBlock().hash;
-        myblock.hash = myblock.mineBlock(this.difficulty);
-        this.chain.push(myblock);
+    minePendingTransactions(miner_address){
+        let block = new Block(this.pendingTransactions);
+        block.previoushash = this.lastBlock().hash;
+        block.mineBlock(this.difficulty);
+        console.log("Mining Success");
+        this.chain.push(block);
+
+        this.pendingTransactions = [new Transaction(null,miner_address,this.miningReward)];
+    }
+
+
+    createTransaction(transaction){
+        this.pendingTransactions.push(transaction);
+    }
+
+    getBalanceOf(address){
+        let bal = 0;
+        for (const block of this.chain){
+            for (const trans of block.transactions){
+                if(trans.fromAddress === address){
+                    bal = bal- trans.coins;
+                }
+                if(trans.toAddress === address){
+                    bal = bal + trans.coins;
+                }
+            }
+        }
+        return bal;
     }
     isChainValid(){
         for (var i=1;i<this.chain.length;i++){
