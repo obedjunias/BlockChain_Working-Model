@@ -2,9 +2,12 @@ const Block = require('./Block');
 class BlockChain{
     constructor(){
         this.chain = [this.createFirstBlock()];
+        this.difficulty = 4;
     }
     createFirstBlock(){
         let firstBlock = new Block("First Block","0000")
+        // //firstBlock.hash = firstBlock.calculateHash();
+        // firstBlock.hash = firstBlock.mineBlock(this.difficulty);
         return firstBlock;
     }
     lastBlock(){
@@ -15,7 +18,7 @@ class BlockChain{
         myblock.timestamp = JSON.stringify(new Date());
         myblock.data = JSON.stringify(myblock.data);
         myblock.previoushash = this.lastBlock().hash;
-        myblock.hash = myblock.calculateHash();
+        myblock.hash = myblock.mineBlock(this.difficulty);
         this.chain.push(myblock);
     }
     isChainValid(){
